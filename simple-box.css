@@ -1,0 +1,15 @@
+.simple-box {
+   display: none;
+}
+
+.simple-box-container {
+   display: inline-block;
+}
+
+.simple-box-input {
+   margin: 0;
+}
+
+.simple-box-button {
+   margin: 0;
+}

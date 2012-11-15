@@ -1,0 +1,221 @@
+<html>
+   <head>
+      <style>
+         .simple-box {
+            display: none;
+         }
+
+         .simple-box-container {
+            display: inline-block;
+         }
+
+         .simple-box-input {
+            margin: 0;
+         }
+
+         .simple-box-button {
+            margin: 0;
+         }
+
+         .simple-box-dropdown {
+            position: absolute;
+            height: 0px;
+            overflow: hidden;
+            border: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-left: 5px;
+            padding-right: 5px;
+
+            transition: height 0.5s;
+            -moz-transition: height 0.5s;
+            -webkit-transition: all 0.5s;
+            -o-transition: height 0.5s;
+         }
+
+         /* TODO(eriq): Max height and scroll. */
+         .simple-box-dropdown-active {
+            height: initial;
+            max-height: 300px;
+            border: 1px solid black;
+         }
+
+         .simple-box-dropdown p {
+            padding: 0;
+            margin-left: 0;
+            margin-right: 20px;
+            margin-top: 2px;
+            margin-bottom: 0;
+            cursor: pointer;
+         }
+      </style>
+
+      <script>
+         document.addEventListener('DOMContentLoaded', function() {
+            // TODO(eriq): multiple selects
+            var simpleBoxSelect = document.getElementsByClassName('simple-box')[0];
+            var dropdown = "<p data-simple-box-value=''>--CLEAR--</p>";
+            for (var i = 0; i < simpleBoxSelect.children.length; i++) {
+               dropdown += "<p data-simple-box-value='" +
+                           simpleBoxSelect.children[i].value + "'>" +
+                           simpleBoxSelect.children[i].text + "</p>";
+            }
+            var dropdownElement = document.createElement('div');
+            dropdownElement.className = 'simple-box-dropdown';
+            dropdownElement.innerHTML = dropdown;
+            // TODO write everything at once.
+            document.getElementsByClassName('simple-box-container')[0].appendChild(dropdownElement);
+
+            var options = document.querySelectorAll('.simple-box-dropdown p');
+            for (var i = 0; i < options.length; i++) {
+               // TOOO(eriq): use a data field as the value.
+               options[i].addEventListener('click',
+                     selectValue.bind(window,
+                                      options[i].getAttribute('data-simple-box-value'),
+                                      options[i].innerHTML));
+            }
+
+            // On change, add the value to the select to make it a valid value.
+            document.getElementsByClassName('simple-box-input')[0].addEventListener('change', function() {
+               var newOption = document.createElement('option');
+               newOption.setAttribute('value', document.getElementsByClassName('simple-box-input')[0].value);
+               newOption.innerHTML = document.getElementsByClassName('simple-box-input')[0].value;
+               document.getElementsByClassName('simple-box')[0].appendChild(newOption);
+               document.getElementsByClassName('simple-box')[0].value = document.getElementsByClassName('simple-box-input')[0].value;
+            });
+         });
+
+         function simpleBoxToggleDropDown() {
+            // TODO(eriq): ID
+            var box = document.getElementsByClassName('simple-box-dropdown')[0];
+
+            if (box.className.match(/simple-box-dropdown-active/)) {
+               box.className = box.className.replace(/simple-box-dropdown-active/, '');
+            } else {
+               box.classList.add('simple-box-dropdown-active');
+            }
+         }
+
+         function simpleBoxActivateDropDown() {
+            // TODO(eriq): ID
+            var box = document.getElementsByClassName('simple-box-dropdown')[0];
+            box.classList.add('simple-box-dropdown-active');
+         }
+
+         function simpleBoxDeactivateDropDown() {
+            // TODO(eriq): ID
+            var box = document.getElementsByClassName('simple-box-dropdown')[0];
+            box.className = box.className.replace(/simple-box-dropdown-active/, '');
+         }
+
+         // Never add values to the dropdown, but add new values to the select.
+         function selectValue(val, text) {
+            //TEST
+            console.log('Val: ' + val + ', Text: ' + text);
+
+            simpleBoxDeactivateDropDown();
+
+            var select = document.getElementsByClassName('simple-box')[0];
+            select.value = val;
+
+            var inputBox = document.getElementsByClassName('simple-box-input')[0];
+            if (val == '') {
+               inputBox.value = '';
+            } else {
+               inputBox.value = text;
+            }
+         }
+      </script>
+   </head>
+
+   <body>
+      <label>Programming Language: </label>
+      <select>
+         <option value="ActionScript">ActionScript</option>
+         <option value="AppleScript">AppleScript</option>
+         <option value="Asp">Asp</option>
+         <option value="BASIC">BASIC</option>
+         <option value="C">C</option>
+         <option value="C++">C++</option>
+         <option value="Clojure">Clojure</option>
+         <option value="COBOL">COBOL</option>
+         <option value="ColdFusion">ColdFusion</option>
+         <option value="Erlang">Erlang</option>
+         <option value="Fortran">Fortran</option>
+         <option value="Groovy">Groovy</option>
+         <option value="Haskell">Haskell</option>
+         <option value="Java">Java</option>
+         <option value="JavaScript">JavaScript</option>
+         <option value="Lisp">Lisp</option>
+         <option value="Perl">Perl</option>
+         <option value="PHP">PHP</option>
+         <option value="Python">Python</option>
+         <option value="Ruby">Ruby</option>
+         <option value="Scala">Scala</option>
+         <option value="Scheme">Scheme</option>
+      </select>
+
+      <br />
+      <hr />
+
+      <label>Programming Language: </label>
+      <div class='simple-box-container'>
+         <input class='simple-box-input' type='text' />
+         <button class='simple-box-button' onclick='simpleBoxToggleDropDown();'></button>
+
+<!--
+         <div class='simple-box-dropdown'>
+            <p data-simple-box-value=''>--CLEAR--</p>
+            <p>ActionScript</p>
+            <p>AppleScript</p>
+            <p>Asp</p>
+            <p>BASIC</p>
+            <p>C</p>
+            <p>C++</p>
+            <p>Clojure</p>
+            <p>COBOL</p>
+            <p>ColdFusion</p>
+            <p>Erlang</p>
+            <p>Fortran</p>
+            <p>Groovy</p>
+            <p>Haskell</p>
+            <p>Java</p>
+            <p>JavaScript</p>
+            <p>Lisp</p>
+            <p>Perl</p>
+            <p>PHP</p>
+            <p>Python</p>
+            <p>Ruby</p>
+            <p>Scala</p>
+            <p>Scheme</p>
+         </div>
+-->
+
+         <select class='simple-box'>
+            <option value="ActionScript">ActionScript</option>
+            <option value="AppleScript">AppleScript</option>
+            <option value="Asp">Asp</option>
+            <option value="BASIC">BASIC</option>
+            <option value="C">C</option>
+            <option value="C++">C++</option>
+            <option value="Clojure">Clojure</option>
+            <option value="COBOL">COBOL</option>
+            <option value="ColdFusion">ColdFusion</option>
+            <option value="Erlang">Erlang</option>
+            <option value="Fortran">Fortran</option>
+            <option value="Groovy">Groovy</option>
+            <option value="Haskell">Haskell</option>
+            <option value="Java">Java</option>
+            <option value="JavaScript">JavaScript</option>
+            <option value="Lisp">Lisp</option>
+            <option value="Perl">Perl</option>
+            <option value="PHP">PHP</option>
+            <option value="Python">Python</option>
+            <option value="Ruby">Ruby</option>
+            <option value="Scala">Scala</option>
+            <option value="Scheme">Scheme</option>
+         </select>
+      </div>
+
+   </body>
+</html>
