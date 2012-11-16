@@ -1,5 +1,3 @@
-// TODO(eriq): Allow the user to change the select and display it.
-
 window['simple-box-id'] = 0;
 
 document.addEventListener('DOMContentLoaded', function() {
