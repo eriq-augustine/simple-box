@@ -31,11 +31,11 @@ function simpleBoxInit() {
 
       // We expect all the children of the select to be options.
       containerHtml += "<p data-simple-box-value='' onclick=\"simpleBoxSelectValue(" +
-                       id + ", '', '');\">--CLEAR--</p>";
+                       id + ", '', '', true);\">--CLEAR--</p>";
       for (var i = 0; i < simpleBoxSelect.children.length; i++) {
          containerHtml += "<p onclick=\"simpleBoxSelectValue(" + id + ", '" +
                           simpleBoxSelect.children[i].value + "', '" +
-                          simpleBoxSelect.children[i].text + "');\">" +
+                          simpleBoxSelect.children[i].text + "', true);\">" +
                           simpleBoxSelect.children[i].text + "</p>";
       }
 
@@ -51,30 +51,32 @@ function simpleBoxInit() {
       newSimpleBoxSelect.classList.add('simple-box-select');
       newSimpleBoxSelect.setAttribute('data-simple-box-id', id);
 
-      newSimpleBoxSelect.addEventListener('change', function() {
-         var selectId = this.getAttribute('data-simple-box-id');
-         var text = this.querySelector("option[value='" + this.value + "']").textContent;
-         simpleBoxSelectValue(selectId, this.value, text);
+      newSimpleBoxSelect.addEventListener('change', function(eventObj) {
+         // Ignore cyclic events from SimpleBox
+         if (!eventObj.fromSimpleBox) {
+            var selectId = this.getAttribute('data-simple-box-id');
+            var text = this.querySelector("option[value='" + this.value + "']").textContent;
+            simpleBoxSelectValue(selectId, this.value, text, false /* don't trigger an change event */);
+         }
       });
 
       container.appendChild(newSimpleBoxSelect);
-   }
-   window['simple-box-id'] += simpleBoxSelects.length;
 
-   // On change, add the value to the select to make it a valid value.
-   var inputs = document.getElementsByClassName('simple-box-input');
-   for (var i = 0; i < inputs.length; i++) {
-      inputs[i].addEventListener('change', function() {
+      // On change, add the value to the select to make it a valid value.
+      var inputElement = document.getElementById('simple-box-input-' + id);
+      inputElement.addEventListener('change', function() {
          var newOption = document.createElement('option');
          newOption.setAttribute('value', this.value);
          newOption.innerHTML = this.value;
 
-         // TODO(eriq): I don't like this risky class tactic.
-         var simpleBoxSelect = document.getElementsByClassName('simple-box-select-' + this.getAttribute('data-simple-box-id'))[0];
-         simpleBoxSelect.appendChild(newOption);
-         simpleBoxSelect.value = this.value;
+         newSimpleBoxSelect.appendChild(newOption);
+
+         simpleBoxSelectValue(this.getAttribute('data-simple-box-id'),
+                              this.value, this.value, true);
       });
+
    }
+   window['simple-box-id'] += simpleBoxSelects.length;
 }
 
 function simpleBoxToggleDropDown(id) {
@@ -100,7 +102,7 @@ function simpleBoxDeactivateDropDown(id) {
 }
 
 // Never add values to the dropdown, but add new values to the select.
-function simpleBoxSelectValue(id, val, text) {
+function simpleBoxSelectValue(id, val, text, triggerEvent) {
    simpleBoxDeactivateDropDown(id);
 
    var select = document.getElementsByClassName('simple-box-select-' + id)[0];
@@ -111,5 +113,16 @@ function simpleBoxSelectValue(id, val, text) {
       inputBox.value = '';
    } else {
       inputBox.value = text;
+   }
+
+   // Send the event to the select that it was changed.
+   // This is important for any users who are listening for changes
+   //  in their select.
+   if (triggerEvent) {
+      var changeEvent = document.createEvent("HTMLEvents");
+      changeEvent.initEvent('change', true, true);
+      // Add a special attribute to tell if the events are from us.
+      changeEvent.fromSimpleBox = true;
+      select.dispatchEvent(changeEvent);
    }
 }

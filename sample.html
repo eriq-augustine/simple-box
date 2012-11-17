@@ -2,11 +2,16 @@
    <head>
       <link rel='stylesheet' type='text/css' href='simple-box.css' />
       <script type='text/javascript' src='simple-box.js'></script>
+      <script>
+         function iChanged() {
+            console.log("Select Changed!");
+         }
+      </script>
    </head>
 
    <body>
       <label>Programming Language: </label>
-      <select class='simple-box'>
+      <select class='simple-box' onchange="iChanged();">
          <option value="ActionScript">ActionScript</option>
          <option value="AppleScript">AppleScript</option>
          <option value="Asp">Asp</option>
